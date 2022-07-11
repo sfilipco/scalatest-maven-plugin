@@ -224,6 +224,14 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
      */
     double spanScaleFactor = 1.0;
 
+    /**
+     * Option to specify an alternative path to JVM (or path to the java executable) to use with
+     * the forked process.
+     *
+     * @parameter property="jvm"
+     */
+    String jvm;
+
     // runScalaTest is called by the concrete mojo subclasses  TODO: make it protected and others too
     // Returns true if all tests pass
     boolean runScalaTest(String[] args) throws MojoFailureException {
@@ -259,8 +267,13 @@ abstract class AbstractScalaTestMojo extends AbstractMojo {
     private boolean runForkingOnce(String[] args) throws MojoFailureException {
 
         final Commandline cli = new Commandline();
-        cli.setWorkingDirectory(project.getBasedir());
         cli.setExecutable(getJvm());
+
+        if (this.jvm == null || this.jvm.isEmpty()) {
+            cli.setExecutable(getJvm());
+        } else {
+            cli.setExecutable(this.jvm);
+        }
 
         // Set up environment
         if (environmentVariables != null) {
